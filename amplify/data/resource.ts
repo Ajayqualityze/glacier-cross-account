@@ -3,6 +3,27 @@ import { uploadToGlacier } from '../functions/uploadToGlacier/resource';
 import { listCrossAccountFolders } from '../functions/listCrossAccountFolders/resource';
 
 const schema = a.schema({
+  FileInfo: a.customType({
+    key: a.string(),
+    size: a.integer(),
+    lastModified: a.string(),
+    storageClass: a.string(),
+  }),
+
+  UploadResult: a.customType({
+    success: a.boolean().required(),
+    key: a.string(),
+    bucket: a.string(),
+    storageClass: a.string(),
+    message: a.string(),
+  }),
+
+  ListResult: a.customType({
+    folders: a.string().array(),
+    files: a.ref('FileInfo').array(),
+    bucket: a.string(),
+  }),
+
   uploadToGlacier: a
     .query()
     .arguments({
@@ -11,15 +32,7 @@ const schema = a.schema({
       folderPath: a.string(),
       contentType: a.string(),
     })
-    .returns(
-      a.customType({
-        success: a.boolean().required(),
-        key: a.string(),
-        bucket: a.string(),
-        storageClass: a.string(),
-        message: a.string(),
-      })
-    )
+    .returns(a.ref('UploadResult'))
     .authorization((allow) => [allow.authenticated()])
     .handler(a.handler.function(uploadToGlacier)),
 
@@ -28,18 +41,7 @@ const schema = a.schema({
     .arguments({
       prefix: a.string(),
     })
-    .returns(
-      a.customType({
-        folders: a.string().array(),
-        files: a.customType({
-          key: a.string(),
-          size: a.integer(),
-          lastModified: a.string(),
-          storageClass: a.string(),
-        }).array(),
-        bucket: a.string(),
-      })
-    )
+    .returns(a.ref('ListResult'))
     .authorization((allow) => [allow.authenticated()])
     .handler(a.handler.function(listCrossAccountFolders)),
 });

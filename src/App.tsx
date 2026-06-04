@@ -13,7 +13,10 @@ export default function App() {
   };
 
   return (
-    <Authenticator>
+    <Authenticator
+      loginMechanisms={['email']}
+      signUpAttributes={['email']}
+    >
       {({ signOut, user }) => (
         <div className="min-h-screen bg-gray-100">
           {/* Header */}

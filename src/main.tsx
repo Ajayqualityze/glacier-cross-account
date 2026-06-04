@@ -6,6 +6,7 @@ import './index.css';
 
 // Load Amplify config (generated after deployment)
 try {
+  // @ts-ignore - File generated at build time by Amplify
   const outputs = await import('../amplify_outputs.json');
   Amplify.configure(outputs.default || outputs);
 } catch (e) {

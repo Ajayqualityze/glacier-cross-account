@@ -5,9 +5,19 @@ export const listCrossAccountFolders = defineFunction({
   entry: './handler.ts',
   timeoutSeconds: 60,
   runtime: 20,
-  // Environment variables are set in Amplify Console → App settings → Environment variables
-  // Add these 3 variables in the console:
-  // CROSS_ACCOUNT_ROLE_ARN = arn:aws:iam::YOUR-ACCOUNT:role/CrossAccountS3GlacierRole
-  // CROSS_ACCOUNT_BUCKET = your-bucket-name
-  // CROSS_ACCOUNT_REGION = us-east-1
+  environmentVariables: {
+    CROSS_ACCOUNT_ROLE_ARN: {
+      type: 'string',
+      value: process.env.CROSS_ACCOUNT_ROLE_ARN || 'arn:aws:iam::767900165297:role/CrossAccountS3GlacierRole',
+    },
+    CROSS_ACCOUNT_BUCKET: {
+      type: 'string',
+      value: process.env.CROSS_ACCOUNT_BUCKET || 'my-glacier-bucket-2026',
+    },
+    CROSS_ACCOUNT_REGION: {
+      type: 'string',
+      value: process.env.CROSS_ACCOUNT_REGION || 'us-east-1',
+    },
+  },
 });
+

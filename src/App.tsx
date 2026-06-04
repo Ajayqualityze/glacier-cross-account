@@ -46,7 +46,7 @@ export default function App() {
       signUpAttributes={['email']}
     >
       {({ signOut }) => (
-        <AppLayout onSignOut={signOut}>
+        <AppLayout onSignOut={() => signOut?.()}>
           <FileUpload onUploadComplete={handleUploadComplete} />
           <FolderBrowser key={refreshKey} />
         </AppLayout>

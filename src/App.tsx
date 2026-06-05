@@ -2,48 +2,14 @@ import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import { FileUpload } from './components/FileUpload';
 import { FolderBrowser } from './components/FolderBrowser';
-import { useState, useEffect } from 'react';
-import { Auth } from '@aws-amplify/auth';
-
-type AppUser = {
-  username?: string;
-  attributes?: { email?: string };
-};
+import { useState } from 'react';
 
 export default function App() {
   const [refreshKey, setRefreshKey] = useState(0);
-  const [isCheckingSession, setIsCheckingSession] = useState(true);
-  const [fetchedEmail, setFetchedEmail] = useState<string | undefined>(undefined);
 
   const handleUploadComplete = () => {
     setRefreshKey(prev => prev + 1);
   };
-
-  // Check if user already has a session and fetch email from Cognito
-  useEffect(() => {
-    let mounted = true;
-
-        const load = async () => {
-      try {
-            const u = await Auth.currentAuthenticatedUser({ bypassCache: true });
-            const email = (u?.attributes && (u.attributes.email || u.attributes?.email_verified && u.attributes.email))
-          || u?.email
-          || u?.signInUserSession?.idToken?.payload?.email;
-        if (mounted && email) setFetchedEmail(email);
-      } catch (e) {
-        // not signed in or no attributes available
-      } finally {
-        if (mounted) setIsCheckingSession(false);
-      }
-    };
-
-    load();
-
-    return () => { mounted = false; };
-  }, []);
-
-  // Show nothing while checking session
-  if (isCheckingSession) return null;
 
   // Always show Authenticator to allow sign-up, even when session exists
   // Authenticator handles existing sessions appropriately
@@ -67,44 +33,17 @@ export default function App() {
             ),
       }}
     >
-      {({ signOut, user }: { signOut?: () => void; user?: AppUser }) => {
-        const extractEmail = (u: any): string | undefined => {
-          return (
-            u?.attributes?.email ||
-            u?.email ||
-            (typeof u?.username === 'string' && u.username.includes('@') ? u.username : undefined) ||
-            u?.signInUserSession?.idToken?.payload?.email
-          );
-        };
-
-        const userEmailRaw = fetchedEmail || extractEmail(user);
-        const userEmail = userEmailRaw || 'User';
-
-        const userInitials = (userEmailRaw || user?.username || 'U')
-          .toString()
-          .split('@')[0]
-          .split(/[^A-Za-z0-9]+/)
-          .filter(Boolean)
-          .slice(0, 2)
-          .map((part: string) => part[0].toUpperCase())
-          .join('') || 'U';
-
-        return (
-          <AppLayout
-            onSignOut={() => signOut?.()}
-            userName={userEmail}
-            userInitials={userInitials}
-          >
-            <FileUpload onUploadComplete={handleUploadComplete} />
-            <FolderBrowser key={refreshKey} />
-          </AppLayout>
-        );
-      }}
+      {({ signOut }: { signOut?: () => void }) => (
+        <AppLayout onSignOut={() => signOut?.()}>
+          <FileUpload onUploadComplete={handleUploadComplete} />
+          <FolderBrowser key={refreshKey} />
+        </AppLayout>
+      )}
     </Authenticator>
   );
 }
 
-function AppLayout({ children, onSignOut, userName, userInitials }: { children: React.ReactNode; onSignOut: () => void; userName: string; userInitials: string }) {
+function AppLayout({ children, onSignOut }: { children: React.ReactNode; onSignOut: () => void }) {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
@@ -122,23 +61,12 @@ function AppLayout({ children, onSignOut, userName, userInitials }: { children: 
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-3 bg-gray-100 px-3 py-2 rounded-full">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-sm font-semibold text-white">
-                  {userInitials}
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-semibold text-gray-900">{userName}</p>
-                  <p className="text-xs text-gray-500">Signed in</p>
-                </div>
-              </div>
-              <button
-                onClick={onSignOut}
-                className="mt-2 px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 rounded transition"
-              >
-                Sign Out
-              </button>
-            </div>
+            <button
+              onClick={onSignOut}
+              className="mt-2 px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 rounded transition"
+            >
+              Sign Out
+            </button>
           </div>
         </div>
       </header>

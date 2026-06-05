@@ -3,8 +3,7 @@ import '@aws-amplify/ui-react/styles.css';
 import { FileUpload } from './components/FileUpload';
 import { FolderBrowser } from './components/FolderBrowser';
 import { useState, useEffect } from 'react';
-import { getCurrentUser, signOut } from 'aws-amplify/auth';
-import { Hub } from '@aws-amplify/core';
+import { getCurrentUser } from 'aws-amplify/auth';
 
 type AppUser = {
   username?: string;
@@ -14,90 +13,63 @@ type AppUser = {
 export default function App() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [isCheckingSession, setIsCheckingSession] = useState(true);
-  const [currentUser, setCurrentUser] = useState<AppUser | null>(null);
 
   const handleUploadComplete = () => {
     setRefreshKey(prev => prev + 1);
   };
 
+  // Check if user already has a session (for state management)
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const user = await getCurrentUser();
-        setCurrentUser(user as AppUser);
-      } catch {
-        setCurrentUser(null);
-      } finally {
-        setIsCheckingSession(false);
-      }
-    };
-
-    loadUser();
-
-    const authListener = ({ payload }: any) => {
-      if (payload.event === 'signIn') {
-        getCurrentUser()
-          .then((user: AppUser) => setCurrentUser(user))
-          .catch(() => setCurrentUser(null));
-      }
-      if (payload.event === 'signOut') {
-        setCurrentUser(null);
-      }
-    };
-
-    const removeAuthListener = Hub.listen('auth', authListener);
-    return removeAuthListener;
+    getCurrentUser()
+      .finally(() => setIsCheckingSession(false));
   }, []);
 
+  // Show nothing while checking session
   if (isCheckingSession) return null;
 
-  if (!currentUser) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-100 via-slate-200 to-slate-100">
-      <div className="flex min-h-screen items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="w-full max-w-md rounded-[32px] bg-white/95 p-8 shadow-2xl shadow-slate-300/40 backdrop-blur-xl">
-          <div className="flex flex-col items-center justify-center gap-4 text-center mb-8">
-            <img src="/Q.svg" alt="Qualityze Logo" className="h-20 w-20" />
-            <div>
-              <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
-                Cross-Account Storage
-              </h1>
-              <p className="mt-2 text-sm text-slate-600">
-                Upload files to cross-account S3 with Glacier storage class
-              </p>
-            </div>
-          </div>
-          <Authenticator
-            className="w-full"
-            loginMechanisms={['email']}
-            signUpAttributes={['email']}
-            components={{
-              Header: () => null,
-            }}
-          />
+  // Always show Authenticator to allow sign-up, even when session exists
+  // Authenticator handles existing sessions appropriately
+  return (
+    <Authenticator
+      loginMechanisms={['email']}
+      signUpAttributes={['email']}
+      components={{
+        Header: () => (
+          <div className="flex flex-col items-center justify-center gap-6 mb-6 px-4 text-center sm:flex-row sm:text-left sm:items-center">
+        <img src="/Q.svg" alt="Qualityze Logo" className="h-28 w-28" />
+        <div className="max-w-xl">
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
+            Cross-Account Storage
+          </h1>
+          <p className="mt-2 text-base text-gray-600">
+            Upload files to cross-account S3 with Glacier storage class
+          </p>
         </div>
       </div>
-    </div>
-  );
-  }
-
-  const userEmail = currentUser?.attributes?.email || currentUser?.username || 'User';
-  const userInitials = userEmail
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part: string) => part[0].toUpperCase())
-    .join('');
-
-  return (
-    <AppLayout
-      onSignOut={() => signOut()}
-      userName={userEmail}
-      userInitials={userInitials}
+        ),
+      }}
     >
-      <FileUpload onUploadComplete={handleUploadComplete} />
-      <FolderBrowser key={refreshKey} />
-    </AppLayout>
+      {({ signOut, user }: { signOut?: () => void; user?: AppUser }) => {
+        const userEmail = user?.attributes?.email || user?.username || 'User';
+        const userInitials = userEmail
+          .split(/\s+/)
+          .filter(Boolean)
+          .slice(0, 2)
+          .map((part: string) => part[0].toUpperCase())
+          .join('');
+
+        return (
+          <AppLayout
+            onSignOut={() => signOut?.()}
+            userName={userEmail}
+            userInitials={userInitials}
+          >
+            <FileUpload onUploadComplete={handleUploadComplete} />
+            <FolderBrowser key={refreshKey} />
+          </AppLayout>
+        );
+      }}
+    </Authenticator>
   );
 }
 
@@ -109,7 +81,7 @@ function AppLayout({ children, onSignOut, userName, userInitials }: { children: 
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-5">
-              <img src="/Q.svg" alt="Logo" className="h-40 w-40" />
+              <img src="/Q.svg" alt="Logo" className="h-24 w-24" />
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
                   Glacier Cross-Account Storage

@@ -1,5 +1,6 @@
 import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
+import * as crypto from 'crypto';
 import type { Schema } from '../../data/resource';
 
 const stsClient = new STSClient({});
@@ -28,11 +29,28 @@ export const handler: Schema['listCrossAccountFolders']['functionHandler'] = asy
   });
 
   try {
-    // Assume cross-account role
+    // Assume cross-account role (generate a safe RoleSessionName <= 64 chars)
+    const makeRoleSessionName = (prefix: string, user: string) => {
+      const maxLen = 64;
+      const ts = String(Date.now());
+      const normalized = (user || 'anonymous').replace(/[^A-Za-z0-9=,.@_\-]/g, '-');
+      let candidate = `${prefix}-${normalized}-${ts}`;
+      if (candidate.length <= maxLen) return candidate;
+      const reserved = `${prefix}--${ts}`.length;
+      const maxUser = Math.max(1, maxLen - reserved);
+      if (maxUser > 0) {
+        const truncated = normalized.slice(0, maxUser);
+        candidate = `${prefix}-${truncated}-${ts}`;
+        if (candidate.length <= maxLen) return candidate;
+      }
+      const hash = crypto.createHash('sha256').update(user + ts).digest('hex').slice(0, 16);
+      return `${prefix}-${hash}`;
+    };
+
     const assumeRoleResponse = await stsClient.send(
       new AssumeRoleCommand({
         RoleArn: crossAccountRoleArn,
-        RoleSessionName: `glacier-list-${userSub}-${Date.now()}`,
+        RoleSessionName: makeRoleSessionName('glacier-list', userSub),
         DurationSeconds: 900,
       })
     );

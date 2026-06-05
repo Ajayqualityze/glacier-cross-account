@@ -51,8 +51,9 @@ export default function App() {
     >
       {({ signOut, user }: { signOut?: () => void; user?: AppUser }) => {
         const userEmail = user?.attributes?.email || user?.username || 'User';
-        const userName = userEmail.includes('@') ? userEmail.split('@')[0] : userEmail;
-        const userInitials = userName
+        const userName = userEmail;
+        const userInitials = userEmail
+          .split(/@/)[0]
           .split(/\s+/)
           .filter(Boolean)
           .slice(0, 2)

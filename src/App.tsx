@@ -30,37 +30,54 @@ export default function App() {
       signUpAttributes={['email']}
       components={{
         Header: () => (
-          <div className="flex flex-col items-center justify-center mb-6 px-4 text-center">
-      <img src="/Q.svg" alt="Qualityze Logo" className="h-24 w-24 mb-4" />
-            <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">
-              Cross-Account Storage
-            </h1>
-            <p className="mt-2 text-sm text-gray-600 max-w-xl">
-              Upload files to cross-account S3 with Glacier storage class
-            </p>
-          </div>
+          <div className="flex flex-col items-center justify-center gap-6 mb-6 px-4 text-center sm:flex-row sm:text-left">
+        <img src="/Q.svg" alt="Qualityze Logo" className="h-40 w-40 sm:mb-0" />
+        <div className="max-w-2xl">
+          <h1 className="text-5xl font-extrabold text-slate-900 tracking-tight">
+            Cross-Account Storage
+          </h1>
+          <p className="mt-2 text-base text-gray-600">
+            Upload files to cross-account S3 with Glacier storage class
+          </p>
+        </div>
+      </div>
         ),
       }}
     >
-      {({ signOut }) => (
-        <AppLayout onSignOut={() => signOut?.()}>
-          <FileUpload onUploadComplete={handleUploadComplete} />
-          <FolderBrowser key={refreshKey} />
-        </AppLayout>
-      )}
+      {({ signOut, user }) => {
+        const userEmail = user?.attributes?.email || user?.username || 'User';
+        const userName = userEmail.includes('@') ? userEmail.split('@')[0] : userEmail;
+        const userInitials = userName
+          .split(/\s+/)
+          .filter(Boolean)
+          .slice(0, 2)
+          .map((part) => part[0].toUpperCase())
+          .join('');
+
+        return (
+          <AppLayout
+            onSignOut={() => signOut?.()}
+            userName={userName}
+            userInitials={userInitials}
+          >
+            <FileUpload onUploadComplete={handleUploadComplete} />
+            <FolderBrowser key={refreshKey} />
+          </AppLayout>
+        );
+      }}
     </Authenticator>
   );
 }
 
-function AppLayout({ children, onSignOut }: { children: React.ReactNode; onSignOut: () => void }) {
+function AppLayout({ children, onSignOut, userName, userInitials }: { children: React.ReactNode; onSignOut: () => void; userName: string; userInitials: string }) {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
-            <div className="flex items-center">
-              <img src="/Q.svg" alt="Logo" className="h-24 w-24 mr-5" />
+            <div className="flex items-center gap-5">
+              <img src="/Q.svg" alt="Logo" className="h-40 w-40" />
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
                   Glacier Cross-Account Storage
@@ -70,7 +87,16 @@ function AppLayout({ children, onSignOut }: { children: React.ReactNode; onSignO
                 </p>
               </div>
             </div>
-            <div className="text-right">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 bg-gray-100 px-3 py-2 rounded-full">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-sm font-semibold text-white">
+                  {userInitials}
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-semibold text-gray-900">{userName}</p>
+                  <p className="text-xs text-gray-500">Signed in</p>
+                </div>
+              </div>
               <button
                 onClick={onSignOut}
                 className="mt-2 px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 rounded transition"

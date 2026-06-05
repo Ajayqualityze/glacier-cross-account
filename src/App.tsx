@@ -3,7 +3,7 @@ import '@aws-amplify/ui-react/styles.css';
 import { FileUpload } from './components/FileUpload';
 import { FolderBrowser } from './components/FolderBrowser';
 import { useState, useEffect } from 'react';
-import { getCurrentUser } from 'aws-amplify/auth';
+import { Auth } from 'aws-amplify';
 
 type AppUser = {
   username?: string;
@@ -13,15 +13,33 @@ type AppUser = {
 export default function App() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const [fetchedEmail, setFetchedEmail] = useState<string | undefined>(undefined);
 
   const handleUploadComplete = () => {
     setRefreshKey(prev => prev + 1);
   };
 
-  // Check if user already has a session (for state management)
+  // Check if user already has a session and fetch email from Cognito
   useEffect(() => {
-    getCurrentUser()
-      .finally(() => setIsCheckingSession(false));
+    let mounted = true;
+
+    const load = async () => {
+      try {
+        const u = await Auth.currentAuthenticatedUser({ bypassCache: true });
+        const email = (u?.attributes && (u.attributes.email || u.attributes?.email_verified && u.attributes.email))
+          || u?.email
+          || u?.signInUserSession?.idToken?.payload?.email;
+        if (mounted && email) setFetchedEmail(email);
+      } catch (e) {
+        // not signed in or no attributes available
+      } finally {
+        if (mounted) setIsCheckingSession(false);
+      }
+    };
+
+    load();
+
+    return () => { mounted = false; };
   }, []);
 
   // Show nothing while checking session
@@ -34,29 +52,42 @@ export default function App() {
       loginMechanisms={['email']}
       signUpAttributes={['email']}
       components={{
-        Header: () => (
-          <div className="flex flex-col items-center justify-center gap-6 mb-6 px-4 text-center sm:flex-row sm:text-left sm:items-center">
-        <img src="/Q.svg" alt="Qualityze Logo" className="h-28 w-28" />
-        <div className="max-w-xl">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
-            Cross-Account Storage
-          </h1>
-          <p className="mt-2 text-base text-gray-600">
-            Upload files to cross-account S3 with Glacier storage class
-          </p>
-        </div>
-      </div>
-        ),
+            Header: () => (
+              <div className="flex items-center gap-6 mb-6 px-4">
+                <img src="/Q.svg" alt="Qualityze Logo" className="h-20 w-20 flex-shrink-0" />
+                <div className="flex-1">
+                  <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight">
+                    Cross-Account Storage
+                  </h1>
+                  <p className="mt-1 text-base text-gray-600">
+                    Upload files to cross-account S3 with Glacier storage class
+                  </p>
+                </div>
+              </div>
+            ),
       }}
     >
       {({ signOut, user }: { signOut?: () => void; user?: AppUser }) => {
-        const userEmail = user?.attributes?.email || user?.username || 'User';
-        const userInitials = userEmail
-          .split(/\s+/)
+        const extractEmail = (u: any): string | undefined => {
+          return (
+            u?.attributes?.email ||
+            u?.email ||
+            (typeof u?.username === 'string' && u.username.includes('@') ? u.username : undefined) ||
+            u?.signInUserSession?.idToken?.payload?.email
+          );
+        };
+
+        const userEmailRaw = fetchedEmail || extractEmail(user);
+        const userEmail = userEmailRaw || 'User';
+
+        const userInitials = (userEmailRaw || user?.username || 'U')
+          .toString()
+          .split('@')[0]
+          .split(/[^A-Za-z0-9]+/)
           .filter(Boolean)
           .slice(0, 2)
           .map((part: string) => part[0].toUpperCase())
-          .join('');
+          .join('') || 'U';
 
         return (
           <AppLayout

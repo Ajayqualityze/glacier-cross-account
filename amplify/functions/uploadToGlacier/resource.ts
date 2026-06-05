@@ -6,8 +6,8 @@ export const uploadToGlacier = defineFunction({
   timeoutSeconds: 900,
   runtime: 20,
   environment: {
-    CROSS_ACCOUNT_ROLE_ARN: process.env.CROSS_ACCOUNT_ROLE_ARN || 'arn:aws:iam::767900165297:role/CrossAccountS3GlacierRole',
-    CROSS_ACCOUNT_BUCKET: process.env.CROSS_ACCOUNT_BUCKET || 'my-glacier-bucket-2026',
+    CROSS_ACCOUNT_ROLE_ARN: process.env.CROSS_ACCOUNT_ROLE_ARN || '',
+    CROSS_ACCOUNT_BUCKET: process.env.CROSS_ACCOUNT_BUCKET || '',
     CROSS_ACCOUNT_REGION: process.env.CROSS_ACCOUNT_REGION || 'us-east-1',
   },
 });

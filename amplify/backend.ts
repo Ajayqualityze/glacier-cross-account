@@ -12,8 +12,11 @@ const backend = defineBackend({
   uploadToGlacier,
 });
 
-// Grant Lambda functions permission to assume the cross-account role
-const crossAccountRoleArn = process.env.CROSS_ACCOUNT_ROLE_ARN || 'arn:aws:iam::767900165297:role/CrossAccountS3GlacierRole';
+// Require the cross-account role ARN from environment variables
+const crossAccountRoleArn = process.env.CROSS_ACCOUNT_ROLE_ARN;
+if (!crossAccountRoleArn) {
+  throw new Error('CROSS_ACCOUNT_ROLE_ARN must be set in the environment before synthesizing the backend');
+}
 
 // Add sts:AssumeRole permission to the listCrossAccountFolders function
 const listFunction = backend.listCrossAccountFolders.resources.lambda;

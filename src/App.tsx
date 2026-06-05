@@ -8,24 +8,16 @@ import { getCurrentUser, signOut } from 'aws-amplify/auth';
 export default function App() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [isCheckingSession, setIsCheckingSession] = useState(true);
-  const [hasSession, setHasSession] = useState(false);
 
   const handleUploadComplete = () => {
     setRefreshKey(prev => prev + 1);
   };
 
-  // Check if user already has a session
+  // Check if user already has a session (for state management)
   useEffect(() => {
     getCurrentUser()
-      .then(() => setHasSession(true))
-      .catch(() => setHasSession(false))
       .finally(() => setIsCheckingSession(false));
   }, []);
-
-  const handleSignOut = async () => {
-    await signOut();
-    setHasSession(false);
-  };
 
   // Show nothing while checking session
   if (isCheckingSession) return null;
@@ -37,7 +29,7 @@ export default function App() {
       loginMechanisms={['email']}
       signUpAttributes={['email']}
     >
-      {({ signOut, user }) => (
+      {({ signOut }) => (
         <AppLayout onSignOut={() => signOut?.()}>
           <FileUpload onUploadComplete={handleUploadComplete} />
           <FolderBrowser key={refreshKey} />

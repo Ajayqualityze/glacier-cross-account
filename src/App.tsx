@@ -3,7 +3,7 @@ import '@aws-amplify/ui-react/styles.css';
 import { FileUpload } from './components/FileUpload';
 import { FolderBrowser } from './components/FolderBrowser';
 import { useState, useEffect } from 'react';
-import { Auth } from 'aws-amplify';
+import * as AmplifyModule from 'aws-amplify';
 
 type AppUser = {
   username?: string;
@@ -23,10 +23,10 @@ export default function App() {
   useEffect(() => {
     let mounted = true;
 
-    const load = async () => {
+        const load = async () => {
       try {
-        const u = await Auth.currentAuthenticatedUser({ bypassCache: true });
-        const email = (u?.attributes && (u.attributes.email || u.attributes?.email_verified && u.attributes.email))
+            const u = await AmplifyModule.Auth.currentAuthenticatedUser({ bypassCache: true });
+            const email = (u?.attributes && (u.attributes.email || u.attributes?.email_verified && u.attributes.email))
           || u?.email
           || u?.signInUserSession?.idToken?.payload?.email;
         if (mounted && email) setFetchedEmail(email);

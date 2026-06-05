@@ -3,7 +3,7 @@ import '@aws-amplify/ui-react/styles.css';
 import { FileUpload } from './components/FileUpload';
 import { FolderBrowser } from './components/FolderBrowser';
 import { useState, useEffect } from 'react';
-import * as AmplifyModule from 'aws-amplify';
+import { Auth } from '@aws-amplify/auth';
 
 type AppUser = {
   username?: string;
@@ -25,7 +25,7 @@ export default function App() {
 
         const load = async () => {
       try {
-            const u = await AmplifyModule.Auth.currentAuthenticatedUser({ bypassCache: true });
+            const u = await Auth.currentAuthenticatedUser({ bypassCache: true });
             const email = (u?.attributes && (u.attributes.email || u.attributes?.email_verified && u.attributes.email))
           || u?.email
           || u?.signInUserSession?.idToken?.payload?.email;

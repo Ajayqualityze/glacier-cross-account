@@ -48,7 +48,7 @@ export function FolderBrowser() {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+    <div className="w-full mx-auto p-6 bg-white rounded-lg shadow-lg">
       <div className="mb-6">
         <h2 className="w-full text-3xl font-bold text-gray-800 mb-2">Cross-Account S3 Browser</h2>
         {bucket && (

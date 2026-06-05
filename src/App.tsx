@@ -31,7 +31,7 @@ export default function App() {
       components={{
         Header: () => (
           <div className="flex flex-col items-center justify-center mb-6 px-4 text-center">
-            <img src="/Q.svg" alt="Qualityze Logo" className="h-20 w-20 mb-4" />
+      <img src="/Q.svg" alt="Qualityze Logo" className="h-24 w-24 mb-4" />
             <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">
               Cross-Account Storage
             </h1>
@@ -60,7 +60,7 @@ function AppLayout({ children, onSignOut }: { children: React.ReactNode; onSignO
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
             <div className="flex items-center">
-              <img src="/Q.svg" alt="Logo" className="h-16 w-16 mr-5" />
+              <img src="/Q.svg" alt="Logo" className="h-24 w-24 mr-5" />
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
                   Glacier Cross-Account Storage
@@ -83,7 +83,7 @@ function AppLayout({ children, onSignOut }: { children: React.ReactNode; onSignO
       </header>
 
       {/* Main content */}
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-6">
+      <main className="w-full mx-auto px-4 py-8 sm:px-6 lg:px-6">
         {children}
       </main>
 

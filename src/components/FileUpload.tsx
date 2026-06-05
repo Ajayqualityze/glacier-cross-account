@@ -61,7 +61,7 @@ export function FileUpload({ onUploadComplete }: { onUploadComplete?: () => void
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg mb-6">
+    <div className="w-full mx-auto p-6 bg-white rounded-lg shadow-lg mb-6">
       <h2 className="w-full text-3xl font-bold text-gray-800 mb-4 flex items-center gap-2">
         <Upload className="w-6 h-6" />
         Upload to Glacier

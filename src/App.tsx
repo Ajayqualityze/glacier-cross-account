@@ -48,8 +48,8 @@ function AppLayout({ children, onSignOut }: { children: React.ReactNode; onSignO
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center text-center gap-4">
+        <div className="max-w-3xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center justify-center text-center gap-4">
             <img src="/Q.svg" alt="Logo" className="h-24 w-24" />
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
@@ -61,7 +61,7 @@ function AppLayout({ children, onSignOut }: { children: React.ReactNode; onSignO
             </div>
             <button
               onClick={onSignOut}
-              className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 rounded transition"
+              className="self-center px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 rounded transition"
             >
               Sign Out
             </button>

@@ -19,9 +19,9 @@ export default function App() {
       signUpAttributes={['email']}
       components={{
             Header: () => (
-              <div className="flex items-center gap-6 mb-6 px-4">
-                <img src="/Q.svg" alt="Qualityze Logo" className="h-20 w-20 flex-shrink-0" />
-                <div className="flex-1">
+              <div className="flex flex-col items-center text-center gap-4 mb-6 px-4">
+                <img src="/Q.svg" alt="Qualityze Logo" className="h-20 w-20" />
+                <div>
                   <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight">
                     Cross-Account Storage
                   </h1>
@@ -48,22 +48,20 @@ function AppLayout({ children, onSignOut }: { children: React.ReactNode; onSignO
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-5">
-              <img src="/Q.svg" alt="Logo" className="h-24 w-24" />
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">
-                  Glacier Cross-Account Storage
-                </h1>
-                <p className="text-sm text-gray-600 mt-1">
-                  Upload files to cross-account S3 with Glacier storage class
-                </p>
-              </div>
+        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center text-center gap-4">
+            <img src="/Q.svg" alt="Logo" className="h-24 w-24" />
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Glacier Cross-Account Storage
+              </h1>
+              <p className="text-sm text-gray-600 mt-1">
+                Upload files to cross-account S3 with Glacier storage class
+              </p>
             </div>
             <button
               onClick={onSignOut}
-              className="mt-2 px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 rounded transition"
+              className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 text-gray-700 rounded transition"
             >
               Sign Out
             </button>
